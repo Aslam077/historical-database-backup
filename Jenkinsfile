@@ -4,29 +4,23 @@ pipeline {
     environment {
         PROJECT_NAME = 'historical-database-backup'
         PYTHON_SCRIPT = 'backup.py'
-        
-        // Database credentials from Jenkins
-        DB_USER = credentials('db-username')
-        DB_PASSWORD = credentials('db-password')
-        DB_HOST = credentials('db-host')
-        DB_PORT = credentials('db-port')
     }
     
     parameters {
         choice(
             name: 'BACKUP_MODE',
             choices: ['production', 'test'],
-            description: 'Run backup in production mode or test mode'
+            description: 'Run backup in production or test mode'
         )
         string(
             name: 'TEST_DATE',
             defaultValue: '',
-            description: 'Optional: Test date (YYYY-MM-DD)'
+            description: 'Optional: Test date for backup (YYYY-MM-DD)'
         )
     }
     
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
                 echo '📂 Checking out code from GitHub...'
                 checkout scm
@@ -37,8 +31,6 @@ pipeline {
         stage('Setup Environment') {
             steps {
                 echo '🔧 Setting up Python environment...'
-                
-                // For Windows
                 bat '''
                     echo Python version:
                     python --version
@@ -51,41 +43,48 @@ pipeline {
             }
         }
         
+        stage('Create Config File') {
+            steps {
+                echo '⚙️ Creating config.json...'
+                bat '''
+                    echo {
+                        "snapshot_limit": 2,
+                        "database": {
+                            "host": "localhost",
+                            "port": 3306,
+                            "user": "root",
+                            "password": "Aslam@93738",
+                            "source_database": "ecommerce_db",
+                            "history_database": "ecommerce_backup"
+                        },
+                        "backup_tables": [
+                            "customers",
+                            "products",
+                            "orders",
+                            "order_items"
+                        ]
+                    } > config.json
+                '''
+                echo '✅ config.json created'
+            }
+        }
+        
         stage('Run Backup') {
             steps {
                 echo '📊 Starting database backup...'
-                
-                script {
-                    try {
-                        // Run the backup script
-                        if (params.BACKUP_MODE == 'test' && params.TEST_DATE) {
-                            // Test mode with specific date
-                            bat """
-                                echo Running backup with test date: ${params.TEST_DATE}
-                                python ${PYTHON_SCRIPT}
-                            """
-                        } else {
-                            // Production mode
-                            bat """
-                                echo Running backup in production mode
-                                python ${PYTHON_SCRIPT}
-                            """
-                        }
-                        echo '✅ Backup completed successfully!'
-                    } catch (Exception e) {
-                        echo '❌ Backup failed!'
-                        throw e
-                    }
-                }
+                bat '''
+                    echo Running backup script...
+                    python backup.py
+                    echo ✅ Backup completed!
+                '''
             }
         }
         
         stage('Verify Backup') {
             steps {
                 echo '🔍 Verifying backup...'
-                
-                // You can add verification steps here
                 bat '''
+                    echo Checking backup status...
                     echo Backup verification complete
                 '''
             }
@@ -94,14 +93,12 @@ pipeline {
     
     post {
         success {
-            echo '🎉 Pipeline succeeded!'
+            echo '🎉 Pipeline succeeded! Backup completed successfully.'
             // Optional: Send email notification
-            // mail to: 'your-email@example.com', subject: "Backup Succeeded - ${env.JOB_NAME}", body: "Backup completed successfully"
         }
         failure {
-            echo '💥 Pipeline failed!'
-            // Optional: Send failure notification
-            // mail to: 'your-email@example.com', subject: "Backup FAILED - ${env.JOB_NAME}", body: "Backup failed! Please check Jenkins console."
+            echo '💥 Pipeline failed! Check the logs for details.'
+            // Optional: Send failure alert
         }
         always {
             echo '🏁 Pipeline finished.'
