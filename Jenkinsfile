@@ -5,7 +5,7 @@ pipeline {
         PROJECT_NAME = 'historical-database-backup'
         PYTHON_SCRIPT = 'backup.py'
         // Update this path to match your Python installation
-        PYTHON_PATH = 'D:\Visual Studio Practice File\Historical Database Project'
+        PYTHON_PATH = 'C:\\Python39\\python.exe'
         PIP_PATH = 'C:\\Python39\\Scripts\\pip.exe'
     }
     
