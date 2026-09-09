@@ -4,6 +4,9 @@ pipeline {
     environment {
         PROJECT_NAME = 'historical-database-backup'
         PYTHON_SCRIPT = 'backup.py'
+        // Update this path to match your Python installation
+        PYTHON_PATH = 'C:\\Python39\\python.exe'
+        PIP_PATH = 'C:\\Python39\\Scripts\\pip.exe'
     }
     
     parameters {
@@ -33,10 +36,10 @@ pipeline {
                 echo '🔧 Setting up Python environment...'
                 bat '''
                     echo Python version:
-                    python --version
+                    %PYTHON_PATH% --version
                     
                     echo Installing dependencies...
-                    pip install -r requirements.txt
+                    %PIP_PATH% install -r requirements.txt
                     
                     echo ✅ Setup complete
                 '''
@@ -74,7 +77,7 @@ pipeline {
                 echo '📊 Starting database backup...'
                 bat '''
                     echo Running backup script...
-                    python backup.py
+                    %PYTHON_PATH% %PYTHON_SCRIPT%
                     echo ✅ Backup completed!
                 '''
             }
@@ -94,11 +97,9 @@ pipeline {
     post {
         success {
             echo '🎉 Pipeline succeeded! Backup completed successfully.'
-            // Optional: Send email notification
         }
         failure {
             echo '💥 Pipeline failed! Check the logs for details.'
-            // Optional: Send failure alert
         }
         always {
             echo '🏁 Pipeline finished.'
