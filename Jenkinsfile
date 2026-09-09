@@ -4,9 +4,9 @@ pipeline {
     environment {
         PROJECT_NAME = 'historical-database-backup'
         PYTHON_SCRIPT = 'backup.py'
-        // Update this path to match your Python installation
-        PYTHON_PATH = 'C:\\Python39\\python.exe'
-        PIP_PATH = 'C:\\Python39\\Scripts\\pip.exe'
+        // Your actual Python path
+        PYTHON_PATH = 'C:\\Users\\hp\\AppData\\Local\\Programs\\Python\\Python312\\python.exe'
+        PIP_PATH = 'C:\\Users\\hp\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\pip.exe'
     }
     
     parameters {
@@ -34,15 +34,15 @@ pipeline {
         stage('Setup Environment') {
             steps {
                 echo '🔧 Setting up Python environment...'
-                bat '''
+                bat """
                     echo Python version:
-                    %PYTHON_PATH% --version
+                    ${PYTHON_PATH} --version
                     
                     echo Installing dependencies...
-                    %PIP_PATH% install -r requirements.txt
+                    ${PIP_PATH} install -r requirements.txt
                     
                     echo ✅ Setup complete
-                '''
+                """
             }
         }
         
@@ -75,11 +75,11 @@ pipeline {
         stage('Run Backup') {
             steps {
                 echo '📊 Starting database backup...'
-                bat '''
+                bat """
                     echo Running backup script...
-                    %PYTHON_PATH% %PYTHON_SCRIPT%
+                    ${PYTHON_PATH} ${PYTHON_SCRIPT}
                     echo ✅ Backup completed!
-                '''
+                """
             }
         }
         
