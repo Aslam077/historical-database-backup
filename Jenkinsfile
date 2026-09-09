@@ -10,7 +10,7 @@ pipeline {
         
         stage('Run Backup') {
             steps {
-                bat 'py backup.py'
+                bat 'C:\\Users\\hp\\AppData\\Local\\Programs\\Python\\Python312\\python.exe backup.py'
             }
         }
     }
