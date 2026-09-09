@@ -1,0 +1,17 @@
+{
+	"snapshot_limit": 2,
+    "database": {
+        "host": "localhost",
+        "port": 3306,
+        "user": "root",
+        "password": "Aslam@93738",
+        "source_database": "ecommerce_db",
+        "history_database": "ecommerce_backup"
+    },
+    "backup_tables": [
+        "customers",
+        "products",
+        "orders",
+        "order_items"
+    ]
+}
